@@ -325,7 +325,7 @@ def gen_map(key: chex.PRNGKey, params: EnvParams) -> chex.Array:
     # elif params.map_type == "random":
     # Apply the nebula tiles to the map_features
     # map_features = map_features.replace(tile_type=jnp.where(nebula_map, NEBULA_TILE, EMPTY_TILE))
-    perlin_noise = generate_perlin_noise_2d( (params.map_height, params.map_width), (4, 4))
+    perlin_noise = generate_perlin_noise_2d(key, (params.map_height, params.map_width), (4, 4))
     noise = jnp.where(perlin_noise > 0.5, 1, 0)
     noise = noise | noise.T
     # Flip the noise matrix's rows and columns in reverse
@@ -340,7 +340,7 @@ def gen_map(key: chex.PRNGKey, params: EnvParams) -> chex.Array:
     # jax.debug.breakpoint()
     map_features = map_features.replace(tile_type=jnp.place(map_features.tile_type, noise, 2, inplace=False))
     
-    noise = generate_perlin_noise_2d( (params.map_height, params.map_width), (4, 4))
+    noise = generate_perlin_noise_2d(key, (params.map_height, params.map_width), (4, 4))
     # Find the positions of the two highest noise values
     flat_indices = jnp.argsort(noise.ravel())[-2:]  # Get indices of two highest values
     highest_positions = jnp.column_stack(jnp.unravel_index(flat_indices, noise.shape))
