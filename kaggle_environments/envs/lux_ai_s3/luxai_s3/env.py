@@ -284,11 +284,10 @@ class LuxAIS3Env(environment.Environment):
         info["final_observation"] = obs_st
         if self.auto_reset:
             done = terminated | truncated
-            obs_re, state_re = self.reset_env(key_reset, params)
-            state = jax.tree_map(
-                lambda x, y: jax.lax.select(done, x, y), state_re, state_st
+            obs_re, state_re = self.reset_env(key_reset, params)  # This is slow
+            state, obs = jax.tree_map(
+                lambda x, y: jnp.where(done, x, y), (state_re, obs_re), (state_st, obs_st)
             )
-            obs = jax.lax.select(done, obs_re, obs_st)
         else:
             obs = obs_st
             state = state_st
